@@ -23,8 +23,7 @@ public class LongLat {
   /**
    * The distance tolerance (in degrees) at which two coordinates are considered to be "close to" each other.
    */
-  private static final double CLOSE_TO_DISTANCE_TOLERANCE_IN_DEGREES = 0.0005;
-  // 0.00015;
+  private static final double CLOSE_TO_DISTANCE_TOLERANCE_IN_DEGREES = 0.00015;
 
   /**
    * The longitude coordinate of this LongLat object.
@@ -192,5 +191,33 @@ public class LongLat {
   public String toString() {
     return String.format("[%f, %f]", longitude, latitude);
   }
+
+  /**
+   * Defines the equality of LongLat object
+   *
+   * @param o Object to check equality against
+   * @return boolean  Whether they are equal or not
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    LongLat other = (LongLat) o;
+    return Math.abs(Double.compare(other.longitude, longitude)) <= 0.00001
+        && Math.abs(Double.compare(other.latitude, latitude)) <= 0.00001;
+  }
+
+  /**
+   * Return the hashed value of the object in int
+   *
+   * @return int  The hashed value of the object
+   */
+  @Override
+  public int hashCode() {
+      return Objects.hash(longitude, latitude);
+  }
+
 
 }
