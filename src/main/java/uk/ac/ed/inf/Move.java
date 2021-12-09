@@ -54,17 +54,19 @@ public class Move {
     public Order getOrder() {return order;}
 
     public boolean isValid() {
-        if (!this.dest.isConfined()) {
+        if (!this.dest.isConfined() || intersectsWithNoFlyZone()) {
             return false;
         }
+        return true;
+    }
 
+    public boolean intersectsWithNoFlyZone() {
         for (Line2D side : LongLat.NO_FLY_ZONES_SIDES) {
             if (this.intersects(side)) {
-                return false;
+                return true;
             }
         }
-
-        return true;
+        return false;
     }
 
     public boolean intersects(Line2D side) {

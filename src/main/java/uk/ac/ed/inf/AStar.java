@@ -62,16 +62,20 @@ public class AStar {
             // If near to destination pos, then stop and return path from current node
             if (currentNode.closeTo(destinationPos)) {
                 var path = getPath(currentNode);
+
+                GeoJsonMap mm = new GeoJsonMap();
+                System.out.println(mm.createGeoJsonMap(new ArrayList<LongLat>(Arrays.asList(initialNode, currentNode)), path).toJson());
+
                 ArrayList<Move> output = new ArrayList<>();
                 for (int i = 0; i < path.size() - 1; i++) {
                     output.add(new Move(path.get(i), path.get(i + 1), this.order));
                 }
                 return output;
             } else {
-                var path = getPath(currentNode);
+//                var path = getPath(currentNode);
                 // generate geojson file
-                GeoJsonMap mm = new GeoJsonMap();
-                System.out.println(mm.createGeoJsonMap(new ArrayList<>(Arrays.asList(initialNode, destinationPos)), path).toJson());
+//                GeoJsonMap mm = new GeoJsonMap();
+//                System.out.println(mm.createGeoJsonMap(new ArrayList<>(Arrays.asList(initialNode, destinationPos)), path).toJson());
                 generateNewNodes(currentNode);
             }
         }
@@ -103,14 +107,16 @@ public class AStar {
      * @param currentFrontierNode The node to generate new nodes and expand the frontier from
      */
     private void generateNewNodes(Node currentFrontierNode) {
-        for (int angle = 0; angle < 360; angle += 10) {
-            LongLat nextPos = currentFrontierNode.nextPosition(angle);
+        var angleToDest = currentFrontierNode.angleTo(destinationPos);
+        for (int angle = -90; angle <= 90; angle += 10) {
+            var angleToTry = angleToDest + angle;
+            LongLat nextPos = currentFrontierNode.nextPosition(angleToTry);
             Node newNode = new Node(nextPos, destinationPos, currentFrontierNode);
 
             var step = new Move(currentFrontierNode, nextPos, order);
             var five_steps_in_dir = new Move(currentFrontierNode, step.getAngle(), 100, order);
             // If node not previously explored, and isn't in no fly zone, then explore it, else skip it
-            if (!exploredNodes.contains(newNode) && step.isValid() && five_steps_in_dir.isValid()) {
+            if (!exploredNodes.contains(newNode) && step.isValid() && !five_steps_in_dir.intersectsWithNoFlyZone()) {
                 // If newNode not already generated previously, then add to list of nodes to explore
                 if (!nodesToExplore.contains(newNode)) {
                     nodesToExplore.add(newNode);

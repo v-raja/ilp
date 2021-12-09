@@ -70,7 +70,7 @@ public class Drone {
 
         // Mark order as completed
         order.markCompleted();
-        System.out.println("order completed" + order.orderNo);
+        System.out.println("\nORDER COMPLETED " + order.orderNo);
         ordersDelivered.add(order);
         this.currPos = currDronePos;
         this.moves = currMoves;
