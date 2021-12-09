@@ -57,4 +57,9 @@ public class Move {
     public boolean intersects(Line2D side) {
         return this.line2D.intersectsLine(side);
     }
+
+    @Override
+    public String toString() {
+        return String.format("[(%3f,%3f),(%3f,%3f),%d]", this.orig.longitude, this.orig.latitude, this.dest.longitude, this.dest.latitude, this.angle);
+    }
 }

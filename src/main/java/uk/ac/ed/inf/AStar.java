@@ -99,7 +99,7 @@ public class AStar {
      * @param currentFrontierNode The node to generate new nodes and expand the frontier from
      */
     private void generateNewNodes(Node currentFrontierNode) {
-        for (int angle = -180; angle < 180; angle += 10) {
+        for (int angle = 0; angle < 360; angle += 10) {
             LongLat nextPos = currentFrontierNode.nextPosition(angle);
             Node newNode = new Node(nextPos, destinationPos, currentFrontierNode);
 

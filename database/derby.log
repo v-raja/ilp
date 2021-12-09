@@ -1,0 +1,13 @@
+Thu Dec 09 14:07:21 GMT 2021 : Apache Derby Network Server - 10.15.2.0 - (1873585) started and ready to accept connections on port 1527
+----------------------------------------------------------------
+Thu Dec 09 14:12:13 GMT 2021:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.15.2.0 - (1873585): instance a816c00e-017d-9f85-1c13-ffffd89f372a 
+on database directory /Users/vivek/Desktop/database/derbyDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@55054057 
+Loaded from file:/Users/vivek/Desktop/db-derby-10.15.2.0-bin/lib/derby.jar
+java.vendor=Oracle Corporation
+user.dir=/Users/vivek/Desktop/database
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.15.7
+derby.system.home=/Users/vivek/Desktop/database
+Database Class Loader started - derby.database.classpath=''

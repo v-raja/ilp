@@ -23,7 +23,8 @@ public class LongLat {
   /**
    * The distance tolerance (in degrees) at which two coordinates are considered to be "close to" each other.
    */
-  private static final double CLOSE_TO_DISTANCE_TOLERANCE_IN_DEGREES = 0.00015;
+  private static final double CLOSE_TO_DISTANCE_TOLERANCE_IN_DEGREES = 0.0005;
+  // 0.00015;
 
   /**
    * The longitude coordinate of this LongLat object.
@@ -138,9 +139,8 @@ public class LongLat {
   public int angleTo(LongLat other) {
     var xDelta = other.longitude - this.longitude;
     var yDelta = other.latitude - this.latitude;
-    var angRad = Math.atan2(yDelta, xDelta);
-    var angDeg = Math.toDegrees(angRad);
-    return (int) Math.round(angDeg / 10.0) * 10;
+    var angDeg = Math.toDegrees(Math.atan2(yDelta, xDelta));
+    return (((int) (Math.round(angDeg / 10.0) * 10)) + 360) % 360;
   }
 
   /**
@@ -161,7 +161,7 @@ public class LongLat {
     }
 
     // The `DRONE_MOVE_LENGTH_IN_DEGREES` will be the hypotenuse of a right-angled triangle.
-    // Hence, we have to calculate the length of the opposite and adjacent side of the triangle to get the change in 
+    // Hence, we have to calculate the length of the opposite and adjacent side of the triangle to get the change in
     // longitude and latitude. The length of the opposite side corresponds to the change in latitude, and the length
     // of the adjacent side corresponds to the change in longitude.
     double hypotenuseSideLength = Drone.MOVE_LENGTH_IN_DEGREES;
@@ -188,5 +188,9 @@ public class LongLat {
             && this.latitude <= CONFINEMENT_AREA_BOUND_NORTH_LATITUDE);
   }
 
+  @Override
+  public String toString() {
+    return String.format("[%f, %f]", longitude, latitude);
+  }
 
 }

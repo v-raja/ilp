@@ -20,6 +20,7 @@ public class Drone {
      * The distance (in degrees) of one move of the drone.
      */
     public static final double MOVE_LENGTH_IN_DEGREES = 0.00015;
+//            0.00015;
 
     /**
      * The maximum moves a drone can make in a day.
@@ -28,7 +29,8 @@ public class Drone {
 
     Drone(LongLat start, ArrayList<Order> orders) {
         this.moves = new ArrayList<>();
-        this.orders = TSPSolver.solveForOrders(start, orders);
+//        this.orders = TSPSolver.solveForOrders(start, orders);
+        this.orders = orders;
         this.currPos = start.copy();
 
         // visit every sensor in order
@@ -44,6 +46,7 @@ public class Drone {
         }
 
         ArrayList currMoves = new ArrayList(moves);
+        System.out.println(moves);
         var currDronePos = currPos.copy();
 
         ArrayList<LongLat> allStops = new ArrayList<>();
@@ -51,6 +54,8 @@ public class Drone {
             allStops.add(shop.locationInLongLat);
         }
         allStops.add(order.deliverToInLongLat);
+
+        System.out.println(allStops);
 
         for (LongLat stop : allStops) {
             List<Move> pathToStop = getPathTo(stop, currDronePos, currMoves, order);
@@ -79,6 +84,7 @@ public class Drone {
 
         // Mark order as completed
         order.markCompleted();
+        System.out.println("order completed" + order.orderNo);
         ordersDelivered.add(order);
         this.currPos = currDronePos;
         this.moves = currMoves;
@@ -140,19 +146,25 @@ public class Drone {
             Move nextMove = new Move(dronePos, dest, order);
 
             if (nextMove.isValid()) {
-                dest = nextMove.getDest();
+                dronePos = nextMove.getDest();
                 pathMoves.add(nextMove);
                 movesLeft--;
             } else {
                 // the step collides with either confinement area border or with no-fly zone
                 // perform AStar search instead to calculate path to the destination
+                System.out.println("Start A*");
                 AStar astar = new AStar(dronePos, dest, order);
+
 
                 // If Path is found by AStar search, append all steps and return
                 // If no such path is found, return empty Optional object.
                 List<Move> aStarPath = astar.findPath();
+                System.out.println("End A*");
                 if (aStarPath != null) {
                     pathMoves.addAll(aStarPath);
+                    var move = new Move(dronePos, SPECIAL_HOVERING_ANGLE, order);
+                    pathMoves.add(move);
+                    System.out.println("Found A* path");
                     return pathMoves;
                 } else {
                     System.out.println("Couldn't find A* path");

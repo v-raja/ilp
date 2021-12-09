@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,10 +48,16 @@ public class TSPSolver {
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
         List<TourActivity> bestRoute = Solutions.bestOf(solutions).getRoutes().iterator().next().getActivities();
 
-        System.out.println(orders.size());
-        System.out.println(bestRoute.stream().collect(Collectors.toList()).size());
-        bestRoute.stream().forEach(a -> System.out.println(a.getIndex()));
-        return bestRoute.stream().map(a -> orders.get( (a.getIndex() - 1) / 2 )).collect(Collectors.toList());
+        var deliveries = bestRoute.stream().collect(Collectors.toList());
+        List<Order> optimalOrders = new ArrayList<>();
+        for (int i = 0; i < deliveries.size(); i = i + 2) {
+            optimalOrders.add(orders.get(i / 2));
+        }
+//        System.out.println(orders.size());
+//        System.out.println(bestRoute.stream().collect(Collectors.toList()).size());
+//        bestRoute.stream().forEach(a -> System.out.println(a.getIndex()));
+//        return bestRoute.stream().map(a -> orders.get( (a.getIndex() - 1) / 2 )).collect(Collectors.toList());
+        return optimalOrders;
 
 //        VehicleType vehicleType = VehicleTypeImpl.Builder.newInstance("drone").build();
 //        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("drone")
