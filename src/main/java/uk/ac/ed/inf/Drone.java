@@ -9,7 +9,7 @@ public class Drone {
     private ArrayList<Move> moves;
     private List<Order> orders;
     private LongLat currPos;
-    private List<Order> ordersDelivered;
+    private List<Order> ordersDelivered = new ArrayList<>();
 
     /**
      * A special junk value that indicates the drone is hovering.
@@ -112,6 +112,7 @@ public class Drone {
 
         // Case 1 - No moves left: Return empty.
         if (movesLeft < 1) {
+            System.out.println("< 1 move left");
             return null;
         }
 
@@ -154,6 +155,7 @@ public class Drone {
                     pathMoves.addAll(aStarPath);
                     return pathMoves;
                 } else {
+                    System.out.println("Couldn't find A* path");
                     return null;
                 }
 //                return astar.findPath().map(stepsAvoidingCollision -> {
@@ -168,6 +170,7 @@ public class Drone {
             return pathMoves;
         } else {
             // otherwise return empty.
+            System.out.println("Didn't reach destination with enough moves");
             return null;
         }
     }

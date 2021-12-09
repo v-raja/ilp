@@ -21,68 +21,63 @@ public class TSPSolver {
     public static List<Order> solveForOrders(LongLat start, List<Order> orders) {
 
 
-//        var vehicleType = VehicleTypeImpl.Builder.newInstance("drone");
-//
-//
-//        // build a problem
-//        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
-//
-//        for (int i = 0; i < orders.size(); i++) {
-//            var order = orders.get(i);
-//            vehicleType = vehicleType.addCapacityDimension(i, 4);
-//            var shopLocation = loc(order.shops.get(0).locationInLongLat);
-//            vrpBuilder.addJob(Shipment.Builder.newInstance(order.orderNo).addSizeDimension(i, order.items.size())
-//                    .setPickupLocation(shopLocation).setDeliveryLocation(loc(order.deliverToInLongLat)).build());
-//        }
-////        for (int i = 0; i < sensors.size(); i++) {
-////            var sensor = sensors.get(i);
-////            vrpBuilder.addJob(Service.Builder.newInstance(Integer.toString(i))
-////                    .setLocation(loc(sensor)).build());
-////        }
-//
-//        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("drone")
-//                .setStartLocation(loc(start))
-//                .setType(vehicleType.build())
-//                .build();
-//
-//        VehicleRoutingProblem problem = vrpBuilder.addVehicle(vehicle).build();
-//
-//
-//        // Solve and get the best route
-//        var algorithm = Jsprit.createAlgorithm(problem);
-//        algorithm.setMaxIterations(512);
-//        Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
-//        List<TourActivity> bestRoute = Solutions.bestOf(solutions).getRoutes().iterator().next().getActivities();
-//
-//        return bestRoute.stream().map(a -> orders.get(a.getIndex() - 1)).collect(Collectors.toList());
-
-        VehicleType vehicleType = VehicleTypeImpl.Builder.newInstance("drone").build();
-        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("drone")
-                .setStartLocation(loc(start))
-                .setType(vehicleType)
-                .build();
+        var vehicleType = VehicleTypeImpl.Builder.newInstance("drone").addCapacityDimension(0, 1);
 
         // build a problem
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
-        vrpBuilder.addVehicle(vehicle);
+
         for (int i = 0; i < orders.size(); i++) {
             var order = orders.get(i);
+//            vehicleType = vehicleType.addCapacityDimension(i, 4);
             var shopLocation = loc(order.shops.get(0).locationInLongLat);
-            vrpBuilder.addJob(Service.Builder.newInstance(Integer.toString(i))
-                    .setLocation(shopLocation).build());
-            vrpBuilder.addJob(Service.Builder.newInstance(Integer.toString(i))
-                    .setLocation(loc(order.deliverToInLongLat)).build());
+            vrpBuilder.addJob(Shipment.Builder.newInstance(order.orderNo).addSizeDimension(0, 1)
+                    .setPickupLocation(shopLocation).setDeliveryLocation(loc(order.deliverToInLongLat)).build());
         }
-        VehicleRoutingProblem problem = vrpBuilder.build();
+
+        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("drone")
+                .setStartLocation(loc(start))
+                .setType(vehicleType.build())
+                .build();
+
+        VehicleRoutingProblem problem = vrpBuilder.addVehicle(vehicle).build();
 
         // Solve and get the best route
         var algorithm = Jsprit.createAlgorithm(problem);
         algorithm.setMaxIterations(512);
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
-        var bestRoute = Solutions.bestOf(solutions);
-//                .getRoutes().iterator().next().getActivities();
+        List<TourActivity> bestRoute = Solutions.bestOf(solutions).getRoutes().iterator().next().getActivities();
 
-        return bestRoute.getRoutes().iterator().next().getActivities().stream().map(a -> orders.get(a.getIndex() - 1)).collect(Collectors.toList());
+        System.out.println(orders.size());
+        System.out.println(bestRoute.stream().collect(Collectors.toList()).size());
+        bestRoute.stream().forEach(a -> System.out.println(a.getIndex()));
+        return bestRoute.stream().map(a -> orders.get( (a.getIndex() - 1) / 2 )).collect(Collectors.toList());
+
+//        VehicleType vehicleType = VehicleTypeImpl.Builder.newInstance("drone").build();
+//        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("drone")
+//                .setStartLocation(loc(start))
+//                .setType(vehicleType)
+//                .build();
+//
+//        // build a problem
+//        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
+//        vrpBuilder.addVehicle(vehicle);
+//        for (int i = 0; i < orders.size(); i++) {
+//            var order = orders.get(i);
+//            var shopLocation = loc(order.shops.get(0).locationInLongLat);
+//            vrpBuilder.addJob(Service.Builder.newInstance(Integer.toString(i))
+//                    .setLocation(shopLocation).build());
+//            vrpBuilder.addJob(Service.Builder.newInstance(Integer.toString(i) + 200)
+//                    .setLocation(loc(order.deliverToInLongLat)).build());
+//        }
+//        VehicleRoutingProblem problem = vrpBuilder.build();
+//
+//        // Solve and get the best route
+//        var algorithm = Jsprit.createAlgorithm(problem);
+//        algorithm.setMaxIterations(512);
+//        Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
+//        var bestRoute = Solutions.bestOf(solutions).getRoutes().iterator().next().getActivities();
+//
+//        return bestRoute.stream().map(a -> orders.get(a.getIndex() - 1)).collect(Collectors.toList());
     }
 
     private static Location loc(LongLat pos) {

@@ -9,7 +9,7 @@ public class App {
     public static void main(String[] args) {
         WebServerClient.instance.setServer("localhost", 80);
         Menus.instance.fetchMenu();
-        DBClient.instance.setServer("localhost", 1527);
+        DBClient.instance.setServer("localhost", 2020);
         processOrdersForDate(2022, 12, 01);
         return;
 //        final int DATE, MONTH, YEAR, WEBSERVER_PORT, DB_PORT;
@@ -60,6 +60,6 @@ public class App {
 
         // generate geojson file
         GeoJsonMap mm = new GeoJsonMap();
-        System.out.println(mm.createGeoJsonMap(deliveryPath, deliveryStops).toJson());
+        System.out.println(mm.createGeoJsonMap(deliveryStops, deliveryPath).toJson());
     }
 }
