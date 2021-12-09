@@ -22,6 +22,19 @@ public class Move {
         this.line2D = new Line2D.Double(origPoint, destPoint);
     }
 
+    public Move(LongLat orig, int angle, int numMoves, Order order) {
+        this.orig = orig;
+        this.dest = orig;
+        for (int i = 0; i < numMoves; i++) {
+            this.dest = this.dest.nextPosition(angle);
+        }
+        this.order = order;
+        this.angle = angle;
+        var origPoint = new Point2D.Double(orig.longitude, orig.latitude);
+        var destPoint = new Point2D.Double(dest.longitude, dest.latitude);
+        this.line2D = new Line2D.Double(origPoint, destPoint);
+    }
+
     public Move(LongLat orig, LongLat dest, Order order) {
         this(orig, orig.angleTo(dest), order);
     }

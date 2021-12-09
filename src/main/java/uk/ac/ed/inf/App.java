@@ -10,7 +10,7 @@ public class App {
         WebServerClient.instance.setServer("localhost", 80);
         Menus.instance.fetchMenu();
         DBClient.instance.setServer("localhost", 1527);
-        processOrdersForDate(2022, 12, 01);
+        processOrdersForDate(2022, 12, 21);
         return;
 //        final int DATE, MONTH, YEAR, WEBSERVER_PORT, DB_PORT;
 //

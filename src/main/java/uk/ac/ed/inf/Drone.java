@@ -46,7 +46,6 @@ public class Drone {
         }
 
         ArrayList currMoves = new ArrayList(moves);
-        System.out.println(moves);
         var currDronePos = currPos.copy();
 
         ArrayList<LongLat> allStops = new ArrayList<>();
@@ -54,8 +53,6 @@ public class Drone {
             allStops.add(shop.locationInLongLat);
         }
         allStops.add(order.deliverToInLongLat);
-
-        System.out.println(allStops);
 
         for (LongLat stop : allStops) {
             List<Move> pathToStop = getPathTo(stop, currDronePos, currMoves, order);
@@ -66,17 +63,6 @@ public class Drone {
                 // update drone position
                 LongLat positionAfterSteps = pathToStop.get(pathToStop.size() - 1).getDest();
                 currDronePos = positionAfterSteps.copy();
-
-//                predictedMoves.get(predictedMoves.size() - 1).setScannedSensor(targetSensor);
-
-                // mark any uncollected sensors as collected for any step on the way to the target node
-//                predictedMoves.forEach(step -> {
-//                    Optional<Sensor> maybeUnreadSensor = sensorMap.getUnreadSensorNear(step.getEndPos());
-//                    maybeUnreadSensor.ifPresent(sensor -> {
-//                        sensor.markCollected();
-//                        step.setScannedSensor(sensor);
-//                    });
-//                });
 
                 currMoves.addAll(pathToStop);
             }
@@ -152,14 +138,13 @@ public class Drone {
             } else {
                 // the step collides with either confinement area border or with no-fly zone
                 // perform AStar search instead to calculate path to the destination
-                System.out.println("Start A*");
                 AStar astar = new AStar(dronePos, dest, order);
 
 
                 // If Path is found by AStar search, append all steps and return
                 // If no such path is found, return empty Optional object.
                 List<Move> aStarPath = astar.findPath();
-                System.out.println("End A*");
+
                 if (aStarPath != null) {
                     pathMoves.addAll(aStarPath);
                     var move = new Move(dronePos, SPECIAL_HOVERING_ANGLE, order);

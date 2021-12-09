@@ -68,6 +68,10 @@ public class AStar {
                 }
                 return output;
             } else {
+                var path = getPath(currentNode);
+                // generate geojson file
+                GeoJsonMap mm = new GeoJsonMap();
+                System.out.println(mm.createGeoJsonMap(new ArrayList<>(Arrays.asList(initialNode, destinationPos)), path).toJson());
                 generateNewNodes(currentNode);
             }
         }
@@ -81,8 +85,8 @@ public class AStar {
      * @param node Node to get a path from
      * @return List of position to represent the path from initialNode to destination
      */
-    private List<LongLat> getPath(Node node) {
-        List<LongLat> path = new ArrayList<>();
+    private ArrayList<LongLat> getPath(Node node) {
+        ArrayList<LongLat> path = new ArrayList<>();
         path.add(node);
         Node parentNode;
         while ((parentNode = node.getParent()) != null) {
@@ -104,8 +108,9 @@ public class AStar {
             Node newNode = new Node(nextPos, destinationPos, currentFrontierNode);
 
             var step = new Move(currentFrontierNode, nextPos, order);
+            var five_steps_in_dir = new Move(currentFrontierNode, step.getAngle(), 100, order);
             // If node not previously explored, and isn't in no fly zone, then explore it, else skip it
-            if (!exploredNodes.contains(newNode) && step.isValid()) {
+            if (!exploredNodes.contains(newNode) && step.isValid() && five_steps_in_dir.isValid()) {
                 // If newNode not already generated previously, then add to list of nodes to explore
                 if (!nodesToExplore.contains(newNode)) {
                     nodesToExplore.add(newNode);
