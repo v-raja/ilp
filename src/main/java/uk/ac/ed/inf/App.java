@@ -10,7 +10,7 @@ public class App {
         WebServerClient.instance.setServer("localhost", 80);
         Menus.instance.fetchMenu();
         DBClient.instance.setServer("localhost", 1527);
-        processOrdersForDate(2022, 12, 25);
+        processOrdersForDate(2022, 3, 1);
         return;
 //        final int DATE, MONTH, YEAR, WEBSERVER_PORT, DB_PORT;
 //
@@ -49,17 +49,21 @@ public class App {
 
         ArrayList<LongLat> deliveryPath = new ArrayList<>();
         ArrayList<LongLat> deliveryStops = new ArrayList<>();
-        deliveryPath.add(flightPath.get(0).getOrig());
-        for (Move move : flightPath) {
-            if (move.getAngle() == Drone.SPECIAL_HOVERING_ANGLE) {
-                deliveryStops.add(move.getDest());
-            } else {
-                deliveryPath.add(move.getDest());
+        if (flightPath.size() > 0) {
+            deliveryPath.add(flightPath.get(0).getOrig());
+            for (Move move : flightPath) {
+                if (move.getAngle() == Drone.SPECIAL_HOVERING_ANGLE) {
+                    deliveryStops.add(move.getDest());
+                } else {
+                    deliveryPath.add(move.getDest());
+                }
             }
-        }
 
-        // generate geojson file
-        GeoJsonMap mm = new GeoJsonMap();
-        System.out.println(mm.createGeoJsonMap(deliveryStops, deliveryPath).toJson());
+            // generate geojson file
+            GeoJsonMap mm = new GeoJsonMap();
+            System.out.println(mm.createGeoJsonMap(deliveryStops, deliveryPath).toJson());
+        } else {
+            System.out.println("Flight path has a size of 0");
+        }
     }
 }

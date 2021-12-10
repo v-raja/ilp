@@ -1,4 +1,7 @@
-package uk.ac.ed.inf;
+package uk.ac.ed.inf.AStar;
+
+import uk.ac.ed.inf.Drone;
+import uk.ac.ed.inf.LongLat;
 
 /**
  * Represents a node in AStar graph search which has a corresponding
@@ -20,6 +23,8 @@ public class Node extends LongLat {
      */
     private double totalCost;
 
+    private int numMoves;
+
     /**
      * Reference to the parent node used to trace back the path
      */
@@ -40,11 +45,14 @@ public class Node extends LongLat {
         if (parentNode == null) {
             this.actualCost = 0;
             this.parent = null;
+            this.numMoves = 1;
         } else {
             // actual cost is parent's actual cost + cost of one move
             this.actualCost = parentNode.getActualCost() + Drone.MOVE_LENGTH_IN_DEGREES;
             this.parent = parentNode;
+            this.numMoves = parentNode.getNumMoves() + 1;
         }
+
         // use Euclidean distance as heuristic cost
         this.heuristicCost = this.distanceTo(destinationPos);
         this.totalCost = this.actualCost + this.heuristicCost;
@@ -61,6 +69,7 @@ public class Node extends LongLat {
         this.parent = parentNode;
         this.actualCost = newActualCost;
         this.totalCost = newActualCost + this.heuristicCost;
+        this.numMoves = parentNode.getNumMoves() + 1;
     }
 
 
@@ -84,6 +93,10 @@ public class Node extends LongLat {
      */
     public double getActualCost() {
         return actualCost;
+    }
+
+    public int getNumMoves() {
+        return this.numMoves;
     }
 
 

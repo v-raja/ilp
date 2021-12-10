@@ -1,5 +1,7 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.AStar.Search;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +12,7 @@ public class Drone {
     private List<Order> orders;
     private LongLat currPos;
     private List<Order> ordersDelivered = new ArrayList<>();
+    private LongLat start;
 
     /**
      * A special junk value that indicates the drone is hovering.
@@ -29,64 +32,82 @@ public class Drone {
 
     Drone(LongLat start, ArrayList<Order> orders) {
         this.moves = new ArrayList<>();
-//        this.orders = TSPSolver.solveForOrders(start, orders);
-        this.orders = orders;
+        this.orders = TSPSolver.solveForOrders(start, orders);
+//        this.orders = orders;
         this.currPos = start.copy();
+        this.start = start;
 
         // visit every sensor in order
         this.orders.forEach(this::completeOrder);
 
         // return to starting position
-        returnTo(start);
+        returnToStart();
     }
 
     private void completeOrder(Order order) {
-        if (order.isComplete) {
+        if (order.getIsComplete()) {
             return;
         }
 
+        // make local copies of state
         ArrayList currMoves = new ArrayList(moves);
         var currDronePos = currPos.copy();
 
+        // add all stops for this order to a list
         ArrayList<LongLat> allStops = new ArrayList<>();
-        for (Shop shop : order.shops) {
+        for (Shop shop : order.getShops()) {
             allStops.add(shop.locationInLongLat);
         }
-        allStops.add(order.deliverToInLongLat);
+        allStops.add(order.getDeliverToInLongLat());
 
+        // loop through all stops and visit them
+        // if we're unable to make one stop on the visit, we don't bother with the order
         for (LongLat stop : allStops) {
+            // if we're unable to make it back to the base after this stop, we won't deliver this order
+            var pathToBase = getPathTo(this.start, stop, currMoves, null);
+            if (pathToBase == null) {
+                System.out.println("Unable to complete order due to not enough moves back to base.");
+                return;
+            }
+
+
             List<Move> pathToStop = getPathTo(stop, currDronePos, currMoves, order);
             if (pathToStop == null) {
                 System.out.println("Unable to complete order");
                 return;
             } else {
                 // update drone position
-                LongLat positionAfterSteps = pathToStop.get(pathToStop.size() - 1).getDest();
-                currDronePos = positionAfterSteps.copy();
+                if (pathToStop.size() > 0) {
+                    LongLat positionAfterSteps = pathToStop.get(pathToStop.size() - 1).getDest();
+                    currDronePos = positionAfterSteps.copy();
+                }
 
+                // hover to pick or drop off a sandwich
+                var hoveringMove = new Move(currDronePos, SPECIAL_HOVERING_ANGLE, order);
+                pathToStop.add(hoveringMove);
                 currMoves.addAll(pathToStop);
             }
         }
 
         // Mark order as completed
         order.markCompleted();
-        System.out.println("\nORDER COMPLETED " + order.orderNo);
+        System.out.println("\nORDER COMPLETED " + order.getOrderNumber());
         ordersDelivered.add(order);
         this.currPos = currDronePos;
         this.moves = currMoves;
     }
 
     /**
-     * Attempts to return the given position using the remaining moves
-     *
-     * @param pos position for drone to return to
+     * Tries to find a path to the where the drone started from.
      */
-    private void returnTo(LongLat pos) {
-        List<Move> path = getPathTo(pos, this.currPos, this.moves, null);
+    private void returnToStart() {
+        int movesRemaining = getRemainingMoves(this.moves);
+        List<Move> path = getPathTo(this.start, this.currPos, this.moves, null);
         if (path != null) {
             this.moves.addAll(path);
+        } else {
+            System.out.println("Couldn't return to start as path couldn't be found.");
         }
-        return;
     }
 
 
@@ -97,60 +118,60 @@ public class Drone {
      * @param dest position to return the drone to
      * @return Optional object which may contain valid series of steps
      */
-    private List<Move> getPathTo(LongLat dest, LongLat currDronePos, ArrayList<Move> currMoves, Order order) {
+    private List<Move> getPathTo(LongLat dest, LongLat dronePos, ArrayList<Move> currMoves, Order order) {
         ArrayList<Move> pathMoves = new ArrayList<>();
-        LongLat dronePos = currDronePos.copy();
         int movesLeft = getRemainingMoves(currMoves);
-
-        // Case 1 - No moves left: Return empty.
-        if (movesLeft < 1) {
-            System.out.println("< 1 move left");
-            return null;
-        }
 
         // Case 2 - Destination already in range:
         // Hover to either collect or drop off delivery
         // TODO: Should we check if we're able to make it back to AT here?
-        if (dronePos.closeTo(dest) && movesLeft >= 2) {
-            var move = new Move(dronePos, SPECIAL_HOVERING_ANGLE, order);
-            pathMoves.add(move);
-//            predictedSteps.add(new Step(step.getEndPos(), pos));
-            return pathMoves;
-//            for (int angle = -180; angle < 180; angle += 10) {
-//                var move = new Move(dronePos, angle, order);
-//                if (!sensorMap.collisionWith(step)) {
-//                    predictedSteps.add(step);
-//                    predictedSteps.add(new Step(step.getEndPos(), pos));
-//                    return Optional.of(predictedSteps);
-//                }
-//            }
-        }
+//        if (dronePos.closeTo(dest) && movesLeft >= 2) {
+//            var move = new Move(dronePos, SPECIAL_HOVERING_ANGLE, order);
+//            pathMoves.add(move);
+////            predictedSteps.add(new Step(step.getEndPos(), pos));
+//            return pathMoves;
+////            for (int angle = -180; angle < 180; angle += 10) {
+////                var move = new Move(dronePos, angle, order);
+////                if (!sensorMap.collisionWith(step)) {
+////                    predictedSteps.add(step);
+////                    predictedSteps.add(new Step(step.getEndPos(), pos));
+////                    return Optional.of(predictedSteps);
+////                }
+////            }
+//        }
 
         // Case 3 - General Case:
         // Calculate non-colliding series of steps to the destination.
         while (movesLeft > 0 && !dronePos.closeTo(dest)) {
             Move nextMove = new Move(dronePos, dest, order);
 
+//            var five_steps_in_dir = new Move(dronePos, nextMove.getAngle(), 2, order);
             if (nextMove.isValid()) {
+//                    && !five_steps_in_dir.intersectsWithNoFlyZone()) {
                 dronePos = nextMove.getDest();
                 pathMoves.add(nextMove);
                 movesLeft--;
             } else {
                 // the step collides with either confinement area border or with no-fly zone
                 // perform AStar search instead to calculate path to the destination
-                AStar astar = new AStar(dronePos, dest, order);
+                Search astar = new Search(dronePos, dest, order);
 
 
                 // If Path is found by AStar search, append all steps and return
                 // If no such path is found, return empty Optional object.
-                List<Move> aStarPath = astar.findPath();
+                List<Move> aStarPath = astar.findPath(movesLeft);
 
                 if (aStarPath != null) {
+                    dronePos = aStarPath.get(aStarPath.size() - 1).getDest();
                     pathMoves.addAll(aStarPath);
-                    var move = new Move(dronePos, SPECIAL_HOVERING_ANGLE, order);
-                    pathMoves.add(move);
+                    movesLeft -= aStarPath.size();
+
+//                    currDronePos = positionAfterSteps.copy();
+
+//                    var move = new Move(aStarPath.get(aStarPath.size() -1).getDest(), SPECIAL_HOVERING_ANGLE, order);
+//                    pathMoves.add(move);
                     System.out.println("Found A* path");
-                    return pathMoves;
+//                    return pathMoves;
                 } else {
                     System.out.println("Couldn't find A* path");
                     return null;
@@ -164,6 +185,8 @@ public class Drone {
 
         if (dronePos.closeTo(dest) && movesLeft > 0) {
             // reached destination within available number of moves; return steps.
+//            var move = new Move(dronePos, SPECIAL_HOVERING_ANGLE, order);
+//            pathMoves.add(move);
             return pathMoves;
         } else {
             // otherwise return empty.

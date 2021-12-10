@@ -165,7 +165,7 @@ public class DBClient {
             if (order == null) {
                 orderNo = "";
             } else {
-                orderNo = order.orderNo;
+                orderNo = order.getOrderNumber();
             }
             double fromLongitude = move.getOrig().longitude;
             double fromLatitude = move.getOrig().latitude;
@@ -185,8 +185,8 @@ public class DBClient {
         createDeliveriesTable();
 
         for (Order order : orders) {
-            String orderNo = order.orderNo;
-            String deliveredTo = order.deliverTo;
+            String orderNo = order.getOrderNumber();
+            String deliveredTo = order.getDeliverTo();
             Integer cost = order.getDeliveryCost();
             try {
                 statement.execute("INSERT INTO deliveries VALUES ('" + orderNo + "', '" + deliveredTo + "', " + cost + ")");

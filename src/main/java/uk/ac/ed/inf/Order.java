@@ -5,13 +5,13 @@ import java.util.Date;
 
 public class Order {
 
-    public String orderNo;
-    public String deliverTo;
-    public ArrayList<Shop.Item> items;
-    public ArrayList<Shop> shops;
-    public LongLat deliverToInLongLat;
+    private String orderNo;
+    private String deliverTo;
+    private ArrayList<Shop.Item> items;
+    private ArrayList<Shop> shops;
+    private LongLat deliverToInLongLat;
     private int deliveryCost;
-    public boolean isComplete = false;
+    private boolean isComplete = false;
 
     public Order(String orderNo, Date deliveryDate, String customer, String deliverTo, ArrayList<String> itemNames) {
         this.orderNo = orderNo;
@@ -36,5 +36,29 @@ public class Order {
 
     public int getDeliveryCost() {
         return deliveryCost;
+    }
+
+    public String getOrderNumber() {
+        return orderNo;
+    }
+
+    public String getDeliverTo() {
+        return deliverTo;
+    }
+
+    public boolean getIsComplete() {
+        return isComplete;
+    }
+
+    public ArrayList<Shop> getShops() {
+        return shops;
+    }
+
+    public ArrayList<Shop.Item> getItems() {
+        return items;
+    }
+
+    public LongLat getDeliverToInLongLat() {
+        return deliverToInLongLat;
     }
  }

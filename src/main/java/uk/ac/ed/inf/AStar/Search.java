@@ -1,4 +1,8 @@
-package uk.ac.ed.inf;
+package uk.ac.ed.inf.AStar;
+
+import uk.ac.ed.inf.LongLat;
+import uk.ac.ed.inf.Move;
+import uk.ac.ed.inf.Order;
 
 import java.util.*;
 
@@ -8,7 +12,7 @@ import java.util.*;
  * drone's reading range of the destination. It represents each
  * step as node and searches a path.
  */
-public class AStar {
+public class Search {
     /**
      * list of nodes to explore
      */
@@ -39,7 +43,7 @@ public class AStar {
      * @param destinationPos Target destination of the AStar search
      * @param order      SensorMap to search over
      */
-    public AStar(LongLat initialPos, LongLat destinationPos, Order order) {
+    public Search(LongLat initialPos, LongLat destinationPos, Order order) {
         this.initialNode = new Node(initialPos, destinationPos, null);
         this.destinationPos = destinationPos;
         this.nodesToExplore = new PriorityQueue<>(Comparator.comparingDouble(Node::getTotalCost));
@@ -53,7 +57,7 @@ public class AStar {
      *
      * @return Path as list of positions from initial to final position. Empty list if no path exists.
      */
-    public ArrayList<Move> findPath() {
+    public ArrayList<Move> findPath(int maxMoves) {
         nodesToExplore.add(initialNode);
         while (!nodesToExplore.isEmpty()) {
             Node currentNode = nodesToExplore.poll();
@@ -63,20 +67,13 @@ public class AStar {
             if (currentNode.closeTo(destinationPos)) {
                 var path = getPath(currentNode);
 
-                GeoJsonMap mm = new GeoJsonMap();
-                System.out.println(mm.createGeoJsonMap(new ArrayList<LongLat>(Arrays.asList(initialNode, currentNode)), path).toJson());
-
                 ArrayList<Move> output = new ArrayList<>();
                 for (int i = 0; i < path.size() - 1; i++) {
                     output.add(new Move(path.get(i), path.get(i + 1), this.order));
                 }
                 return output;
             } else {
-//                var path = getPath(currentNode);
-                // generate geojson file
-//                GeoJsonMap mm = new GeoJsonMap();
-//                System.out.println(mm.createGeoJsonMap(new ArrayList<>(Arrays.asList(initialNode, destinationPos)), path).toJson());
-                generateNewNodes(currentNode);
+                generateNewNodes(currentNode, maxMoves);
             }
         }
         return null;
@@ -106,10 +103,10 @@ public class AStar {
      *
      * @param currentFrontierNode The node to generate new nodes and expand the frontier from
      */
-    private void generateNewNodes(Node currentFrontierNode) {
+    private void generateNewNodes(Node currentFrontierNode, int maxMoves) {
         var angleToDest = currentFrontierNode.angleTo(destinationPos);
-        for (int angle = -90; angle <= 90; angle += 10) {
-            var angleToTry = angleToDest + angle;
+        for (int angle = -90; angle <= 90; angle += 30) {
+            var angleToTry = (angleToDest + angle) % 360;
             LongLat nextPos = currentFrontierNode.nextPosition(angleToTry);
             Node newNode = new Node(nextPos, destinationPos, currentFrontierNode);
 
@@ -119,7 +116,10 @@ public class AStar {
             if (!exploredNodes.contains(newNode) && step.isValid() && !five_steps_in_dir.intersectsWithNoFlyZone()) {
                 // If newNode not already generated previously, then add to list of nodes to explore
                 if (!nodesToExplore.contains(newNode)) {
-                    nodesToExplore.add(newNode);
+                    if (newNode.getNumMoves() <= maxMoves) {
+                        // only include node if it doesn't exceed maximum moves remaining
+                        nodesToExplore.add(newNode);
+                    }
                 } else {
                     // newNode has already been generated, but not yet explored
                     boolean newNodeNeedsUpdate = newNode.isBetterParentNode(currentFrontierNode);
