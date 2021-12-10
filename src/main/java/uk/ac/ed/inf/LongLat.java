@@ -154,16 +154,20 @@ public class LongLat {
    * degrees in the direction specified by `angleInDegrees`.
    */
   public LongLat nextPosition(int angleInDegrees) {
+    return nextPosition(angleInDegrees, 1);
+  }
+
+  public LongLat nextPosition(int angleInDegrees, int numMoves) {
     if (angleInDegrees == Drone.SPECIAL_HOVERING_ANGLE) {
       // Special value that specifies drone is hovering.
-       return new LongLat(this.longitude, this.latitude);
+      return new LongLat(this.longitude, this.latitude);
     }
 
     // The `DRONE_MOVE_LENGTH_IN_DEGREES` will be the hypotenuse of a right-angled triangle.
     // Hence, we have to calculate the length of the opposite and adjacent side of the triangle to get the change in
     // longitude and latitude. The length of the opposite side corresponds to the change in latitude, and the length
     // of the adjacent side corresponds to the change in longitude.
-    double hypotenuseSideLength = Drone.MOVE_LENGTH_IN_DEGREES;
+    double hypotenuseSideLength = Drone.MOVE_LENGTH_IN_DEGREES * numMoves;
     double angleInRadians = Math.toRadians(angleInDegrees);
     double oppositeSideLength = hypotenuseSideLength * Math.sin(angleInRadians);
     double adjacentSideLength = hypotenuseSideLength * Math.cos(angleInRadians);
@@ -196,7 +200,7 @@ public class LongLat {
    * Defines the equality of LongLat object
    *
    * @param o Object to check equality against
-   * @return boolean  Whether they are equal or not
+   * @return boolean  whether they are equal or not
    */
   @Override
   public boolean equals(Object o) {

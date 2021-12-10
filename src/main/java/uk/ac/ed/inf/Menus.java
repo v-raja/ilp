@@ -37,27 +37,14 @@ public class Menus {
 
   private final String menusRequestPath = "/menus/menus.json";
 
-//  /**
-//   * Instantiates the Menu object which retrieves and parses the menus from the specified webserver.
-//   * The menus are fetched and parsed on instantiation of this object. To retrieve the updated menus from the webserver,
-//   * another instance of this class will have to be created.
-//   * @param host The IP address of the webserver.
-//   * @param port The port to connect to the webserver at.
-//   */
-////  public Menus(String host, int port) {
-////    setServer(host, port);
-////  }
-//
-//  private Menus() {}
-
-//  public void setServer(String host, int port) {
-//    // We form the URL we need to make
-//    String serverUrl = "http://" + host + ":" + port + "/";
-//    String menusFilePath = "menus/menus.json";
-//    this.menusRequestUrl = serverUrl + menusFilePath;
-//
-//    updateMenu();
-//  }
+  /**
+   * Instantiates the Menu object which retrieves and parses the menus from the specified webserver.
+   * The menus are fetched and parsed on instantiation of this object. To retrieve the updated menus from the webserver,
+   * another instance of this class will have to be created.
+   */
+  public Menus() {
+    fetchMenu();
+  }
 
   public void fetchMenu() {
     String menusJsonResponse = WebServerClient.instance.get(menusRequestPath);
@@ -75,7 +62,7 @@ public class Menus {
 
     // add each shop to the `sandwichShopsMap` hash map
     for (Shop shop : shops) {
-      shop.locationInLongLat = Words.longLat(shop.location);
+      shop.locationInLongLat = W3W.longLat(shop.location);
       this.sandwichShopsMap.put(shop.name, shop);
 
       // add all items the sandwich shops sells to the `itemsMap` hash map.

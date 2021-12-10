@@ -4,74 +4,62 @@ import uk.ac.ed.inf.Drone;
 import uk.ac.ed.inf.LongLat;
 
 /**
- * Represents a node in AStar graph search which has a corresponding
- * (Longitude,Latitude) Position in the map.
+ * A class that represents a node in A* graph search.
  */
 public class Node extends LongLat {
 
     /**
-     * Estimated cost to get to the destination position.
-     * Measured in Euclidean distance
+     * Heurisitc cost - the estimate of how much it'll cost to reach the goal node.
+     * In this case, we use Eucledian distance.
      */
-    private final double heuristicCost;
+    private final double hCost;
+
     /**
-     * Actual cost to get to the Node from the start
+     * Cost to get to this node from the initial node.
      */
     private double actualCost;
+
     /**
-     * Total cost which is the sum of actual cost and heuristic cost
+     * Sum of the heuristic and actual costs.
      */
     private double totalCost;
 
-    private int numMoves;
+    /**
+     * The distance (in number of nodes) away from the initial node.
+     * Used to keep track of how far we are from the initial node so that we can end early
+     * if we are getting too far from the initial node.
+     * Note: numbering starts from 1.
+     */
+    private int nodeDistance;
 
     /**
-     * Reference to the parent node used to trace back the path
+     * The parent node of this node.
      */
     private Node parent;
 
     /**
-     * Initialises the Node with given position and destination position,
-     * and the parent node.
+     * Instantiates a Node object for use in A* search.
      *
-     * @param pos            Position of the Node in the map
-     * @param destinationPos Position of the destination
-     * @param parentNode     Parent node in the graph.
+     * @param curr Position (in LongLat) of the node
+     * @param dest Position (in LongLat) of the dest
+     * @param parent The parent node of this node. Should be null if this is a root node.
      */
-    public Node(LongLat pos, LongLat destinationPos, Node parentNode) {
-        super(pos.longitude, pos.latitude);
+    public Node(LongLat curr, LongLat dest, Node parent) {
+        // Call super since this extends the LongLat object.
+        super(curr.longitude, curr.latitude);
+        this.hCost = this.distanceTo(dest);
 
-        // parentNode is null when this node is the initial node
-        if (parentNode == null) {
-            this.actualCost = 0;
+        // if this is a root node
+        if (parent == null) {
             this.parent = null;
-            this.numMoves = 1;
+            this.actualCost = 0;
+            this.nodeDistance = 1;
+            this.totalCost = this.actualCost + this.hCost;
         } else {
-            // actual cost is parent's actual cost + cost of one move
-            this.actualCost = parentNode.getActualCost() + Drone.MOVE_LENGTH_IN_DEGREES;
-            this.parent = parentNode;
-            this.numMoves = parentNode.getNumMoves() + 1;
+            // keep all logic encapsulated with changing the parent in one function.
+            changeParent(parent);
         }
-
-        // use Euclidean distance as heuristic cost
-        this.heuristicCost = this.distanceTo(destinationPos);
-        this.totalCost = this.actualCost + this.heuristicCost;
     }
-
-
-    /**
-     * Updates the parent node of this node
-     *
-     * @param parentNode the node which will be made the parent of the current node
-     */
-    public void updateParentNode(Node parentNode) {
-        double newActualCost = parentNode.getActualCost() + Drone.MOVE_LENGTH_IN_DEGREES;
-        this.parent = parentNode;
-        this.actualCost = newActualCost;
-        this.totalCost = newActualCost + this.heuristicCost;
-        this.numMoves = parentNode.getNumMoves() + 1;
-    }
-
 
     /**
      * Checks if the alternative parent node given provides a path with a lower
@@ -80,11 +68,22 @@ public class Node extends LongLat {
      * @param altParentNode Alternative parent node to compare to
      * @return boolean          whether altParentNode provides a better path
      */
-    public boolean isBetterParentNode(Node altParentNode) {
+    public boolean compareParent(Node altParentNode) {
         double altActualCost = altParentNode.getActualCost() + Drone.MOVE_LENGTH_IN_DEGREES;
         return altActualCost < this.actualCost;
     }
 
+    /**
+     * Changes the parent node and updates all the relevant costs and fields.
+     * @param parent the node to be made the parent of this node.
+     */
+    public void changeParent(Node parent) {
+        double newActualCost = parent.getActualCost() + Drone.MOVE_LENGTH_IN_DEGREES;
+        this.parent = parent;
+        this.actualCost = newActualCost;
+        this.totalCost = newActualCost + this.hCost;
+        this.nodeDistance = parent.getNodeDistance() + 1;
+    }
 
     /**
      * Returns the actual cost to get to this node
@@ -95,8 +94,8 @@ public class Node extends LongLat {
         return actualCost;
     }
 
-    public int getNumMoves() {
-        return this.numMoves;
+    public int getNodeDistance() {
+        return this.nodeDistance;
     }
 
 

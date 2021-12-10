@@ -6,7 +6,8 @@ import java.util.*;
 
 public class DBClient {
 
-    public static DBClient instance = new DBClient();
+
+    public static DBClient instance = new DBClient("localhost", 1527);
 
     private static Connection conn;
     private static PreparedStatement selectOrder;
@@ -27,6 +28,7 @@ public class DBClient {
         try {
             this.statement = conn.createStatement();
         } catch (SQLException e) {
+            disconnect();
             e.printStackTrace();
             System.exit(1);
         }
@@ -132,6 +134,7 @@ public class DBClient {
 
             statement.execute("CREATE TABLE " + tableName + " (orderNo VARCHAR(8), fromLongitude DOUBLE, fromLatitude DOUBLE, angle INT, toLongitude DOUBLE, toLatitude DOUBLE)");
         } catch (SQLException e) {
+            disconnect();
             e.printStackTrace();
             System.exit(1);
         }
@@ -151,6 +154,7 @@ public class DBClient {
 
             statement.execute("CREATE TABLE " + tableName + " (orderNo VARCHAR(8), deliveredTo VARCHAR(19), costInPence INT)");
         } catch (SQLException e) {
+            disconnect();
             e.printStackTrace();
             System.exit(1);
         }

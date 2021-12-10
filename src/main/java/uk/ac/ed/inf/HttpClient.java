@@ -39,22 +39,22 @@ public class HttpClient {
                     // Successful request so return the body.
                     return response.body();
                 case 404:
-                    System.out.println("Path not found on server. Code: 404. Request URL: " + requestUrl + ".");
+                    System.err.println("Path not found on server. Code: 404. Request URL: " + requestUrl + ".");
                     System.exit(1); // Exit the application
                 default:
-                    System.out.println("Error encountered in GET request. Code: " + response.statusCode() + ". Request URL: " + requestUrl + ".");
+                    System.err.println("Error encountered in GET request. Code: " + response.statusCode() + ". Request URL: " + requestUrl + ".");
                     System.exit(1); // Exit the application
             }
         } catch (java.net.ConnectException e) {
-            System.out.println("Fatal error: Unable to connect to " +
+            System.err.println("Fatal error: Unable to connect to " +
                     requestUrl + ". Error message: " + e.getMessage() + ".");
             System.exit(1); // Exit the application
         } catch (IOException e) {
-            System.out.println("Fatal error: Unable to connect to " +
+            System.err.println("Fatal error: Unable to connect to " +
                     requestUrl + " due to IO Exception. Error message: " + e.getMessage() + ".");
             System.exit(1); // Exit the application
         } catch (InterruptedException e) {
-            System.out.println("Request interrupted by user. Error message: " + e.getMessage() + ".");
+            System.err.println("Request interrupted by user. Error message: " + e.getMessage() + ".");
             System.exit(1); // Exit the application
         }
 

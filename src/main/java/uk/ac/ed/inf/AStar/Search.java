@@ -116,17 +116,17 @@ public class Search {
             if (!exploredNodes.contains(newNode) && step.isValid() && !five_steps_in_dir.intersectsWithNoFlyZone()) {
                 // If newNode not already generated previously, then add to list of nodes to explore
                 if (!nodesToExplore.contains(newNode)) {
-                    if (newNode.getNumMoves() <= maxMoves) {
+                    if (newNode.getNodeDistance() <= maxMoves) {
                         // only include node if it doesn't exceed maximum moves remaining
                         nodesToExplore.add(newNode);
                     }
                 } else {
                     // newNode has already been generated, but not yet explored
-                    boolean newNodeNeedsUpdate = newNode.isBetterParentNode(currentFrontierNode);
+                    boolean newNodeNeedsUpdate = newNode.compareParent(currentFrontierNode);
 
                     // if better path is available for newNode from currentFrontierNode
                     if (newNodeNeedsUpdate) {
-                        newNode.updateParentNode(currentFrontierNode);
+                        newNode.changeParent(currentFrontierNode);
 
                         // Remove and add the changed node, so that the PriorityQueue can sort again its
                         // contents with the modified "totalCost" value of the modified node

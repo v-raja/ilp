@@ -19,7 +19,7 @@ public class Order {
         this.items = Menus.instance.parseItems(itemNames);
         this.deliveryCost = Menus.instance.getDeliveryCost(itemNames);
         this.shops = Menus.instance.getShopsForItems(items);
-        this.deliverToInLongLat = Words.longLat(deliverTo);
+        this.deliverToInLongLat = W3W.longLat(deliverTo);
 
         if (this.shops.size() > 2) {
             System.out.println("Unexpectedly got an order with more than two shops.");

@@ -59,11 +59,6 @@
         </dependency>
         <dependency>
             <groupId>com.graphhopper</groupId>
-            <artifactId>jsprit-analysis</artifactId>
-            <version>1.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.graphhopper</groupId>
             <artifactId>jsprit-io</artifactId>
             <version>1.8</version>
         </dependency>

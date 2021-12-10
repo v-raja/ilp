@@ -93,7 +93,6 @@ public class Drone2 {
         // loop through all stops and visit them
         // if we're unable to make one stop on the visit, we don't bother with the order
         for (LongLat stop : allStops) {
-
             // if we're unable to make it back to the base after this stop, we won't deliver this order
             int movesRemaining = getRemainingMoves(currMoves);
             var pathToBase = getPathTo(this.start, stop, movesRemaining, null);

@@ -45,10 +45,7 @@ public class Move {
      */
     public Move(LongLat orig, int angle, int numMoves, Order order) {
         this.orig = orig;
-        this.dest = orig;
-        for (int i = 0; i < numMoves; i++) {
-            this.dest = this.dest.nextPosition(angle);
-        }
+        this.dest = orig.nextPosition(angle, numMoves);
         this.order = order;
         this.angle = angle;
         var origPoint2D = new Point2D.Double(orig.longitude, orig.latitude);
